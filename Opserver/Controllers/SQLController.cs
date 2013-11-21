@@ -52,11 +52,8 @@ namespace StackExchange.Opserver.Controllers
         public ActionResult Instance(string node, bool ajax = false)
         {
             var instance = SQLInstance.Get(node);
-            if (instance == null)
-            {
-                if (ajax) return ContentNotFound("Instance " + node + " was not found.");
-                return PageNotFound("Instance not found", "Count not find SQL Instance: " + node);
-            }
+            if (instance == null && ajax)
+                return ContentNotFound("Instance " + node + " was not found.");
 
             var vd = new DashboardModel
             {
@@ -106,7 +103,7 @@ namespace StackExchange.Opserver.Controllers
         }
 
         [Route("sql/top/detail")]
-        public ActionResult TopDetail(string node, string handle)
+        public ActionResult TopDetail(string node, string handle, int? offset = null)
         {
             var planHandle = HttpServerUtility.UrlTokenDecode(handle);
             var instance = SQLInstance.Get(node);
@@ -115,7 +112,7 @@ namespace StackExchange.Opserver.Controllers
             var vd = new OpsTopDetailModel
                 {
                     Instance = instance,
-                    Op = instance.GetTopOperation(planHandle).Data
+                    Op = instance.GetTopOperation(planHandle, offset).Data
                 };
             return View("Operations.Top.Detail", vd);
         }
